@@ -149,6 +149,17 @@
                             modify: false,
                             page_id: 1
                         }
+                    },
+                    {
+                        index: 'goods-attribute',
+                        path: '/home/brand-attribute',
+                        name: '商品参数',
+                        icon: '',
+                        meta: {
+                            check: false,
+                            modify: false,
+                            page_id: 1
+                        }
                     }
                 ]
             }

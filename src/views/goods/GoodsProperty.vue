@@ -23,7 +23,7 @@
                         @size-change="handleSizeChange"
                         @current-change="handleCurrentChange"
                         :current-page="searchData.page"
-                        :page-size="100"
+                        :page-size="searchData.pageSize"
                         layout="total, sizes, prev, pager, next, jumper"
                         :total="total">
                 </el-pagination>
@@ -31,7 +31,7 @@
         </div>
         <el-dialog :visible.async="visibleDialog"
                    append-to-body width="40%" :close-on-click-modal="false">
-            <el-form :model="formData" label-width="140px" ref="goodsAttr">
+            <el-form :model="formData" label-width="140px" ref="goodsProperty">
                 <el-form-item label="属性名字" prop="name" :rules="rules.NotEmpty">
                     <el-input class="dialog-input" v-model="formData.name"></el-input>
                 </el-form-item>
@@ -100,10 +100,10 @@
     }
 
     import {Component, Vue} from 'vue-property-decorator';
-    import {goodsAttribute, goodsGetAttribute} from '@/api/api';
+    import {goodsProperty, goodsGetProperty} from '@/api/api';
 
     @Component
-    export default class GoodsAttr extends Vue {
+    export default class GoodsProperty extends Vue {
         rules: Rules = rules;
         inputValue: string = '';
         loading: boolean = false;
@@ -127,11 +127,17 @@
 
         setData() {
             this.loading = true;
-            this.searchData.page=1;
-            goodsGetAttribute('post', this.searchData).then((res: any) => {
+            goodsGetProperty('post', this.searchData).then((res: any) => {
                 this.loading = false;
                 if (res.code === this.$global.HTTPS) {
-                    this.tableData = res.data.list;
+                    this.tableData = res.data.list.map((v:any)=>{
+                        if(v&&v.properties){
+                            return {
+                                ...v,
+                                properties:v.properties.split(',')
+                            }
+                        }
+                    });
                     this.total = res.data.total;
                 }
             })
@@ -148,7 +154,7 @@
         }
 
         handlerDelItem(id: number) {
-            goodsAttribute('delete', id).then((res: any) => {
+            goodsProperty('delete', id).then((res: any) => {
                 if (res.code === this.$global.HTTPS) {
                     this.$message.success('删除成功');
                     this.setData();
@@ -159,15 +165,17 @@
         }
 
         handlerSubmit() {
-            const goodsAttr = this.$refs['goodsAttr'] as any;
-            goodsAttr.validate((valid: boolean) => {
+            const goodsProperty = this.$refs['goodsProperty'] as any;
+            goodsProperty.validate((valid: boolean) => {
                 if (valid) {
+                    this.loading = true;
+                    const args=Object.assign({},this.formData,{properties:this.formData.properties.join(',')});
                     const methods = this.formData.id ? 'put' : 'post';
-                    goodsAttribute(methods, this.formData).then((res: any) => {
+                    goodsProperty(methods, args).then((res: any) => {
                         if (res.code === this.$global.HTTPS) {
                             this.$message.success('成功');
                             this.setData();
-                            goodsAttr.resetFields();
+                            goodsProperty.resetFields();
                             this.visibleDialog = false;
                         }
                     })

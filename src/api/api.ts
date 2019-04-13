@@ -24,7 +24,7 @@ export const goodsSortManage = (methods: Methods, data?: any) => ajax(methods, '
 export const goodsBrandManage = (methods: Methods, data?: any) => ajax(methods, '/api/brand', data); // 商品品牌
 export const goodsManage = (methods: Methods, data?: any) => ajax(methods, '/api/goods', data); // 商品
 export const goodsGetManage = (methods: Methods, data?: any) => ajax(methods, '/api/goods/list', data); // 商品获取2
-export const goodsAttribute = (methods: Methods, data?: any) => ajax(methods, '/api/property', data); // 商品属性
-export const goodsGetAttribute = (methods: Methods = 'post', data?: any) => ajax(methods, '/api/property/list', data); // 商品属性获取
-export const goodsProperty = (methods: Methods, data?: any) => ajax(methods, '/api/property', data); // 商品参数
-export const goodsGetProperty = (methods: Methods='post', data?: any) => ajax(methods, '/api/property', data); // 商品参数
+export const goodsProperty = (methods: Methods, data?: any) => ajax(methods, '/api/property', data); // 商品属性
+export const goodsGetProperty = (methods: Methods = 'post', data?: any) => ajax(methods, '/api/property/list', data); // 商品属性获取
+export const goodsAttribute = (methods: Methods, data?: any) => ajax(methods, '/api/attribute', data); // 商品参数
+export const goodsGetAttribute = (methods: Methods='post', data?: any) => ajax(methods, '/api/attribute/list', data); // 商品参数

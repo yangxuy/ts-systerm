@@ -43,8 +43,13 @@ export default new Router({
                 },
                 {
                     path: '/home/brand-property',
-                    name: 'GoodsProperty.vue',
+                    name: 'GoodsProperty',
                     component: () => import('./views/goods/GoodsProperty.vue')
+                },
+                {
+                    path: '/home/brand-attribute',
+                    name: 'GoodsAttribute',
+                    component: () => import('./views/goods/GoodsAttribute.vue')
                 }
             ]
         }

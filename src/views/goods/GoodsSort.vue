@@ -117,7 +117,6 @@
                     this.loading = true;
                     const methods = this.formData.id ? 'put' : 'post';
                     goodsSortManage(methods, this.formData).then((res: any) => {
-                        this.loading = false;
                         if (res.code === this.$global.HTTPS) {
                             this.$message.success('成功');
                             this.setData();
