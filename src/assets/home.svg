@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="53px" height="54px" viewBox="0 0 53 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>首页</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Style" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Apple-TV" transform="translate(-531.000000, -727.000000)" stroke="#A6ADB4" stroke-width="2">
+            <g id="首页" transform="translate(532.000000, 729.000000)">
+                <g id="Group-7">
+                    <polyline id="Path-2" stroke-linecap="round" points="50.2659877 25.0049995 42.2635463 17.0025581 25.2609882 0 0 25.2609882"></polyline>
+                    <path d="M6,19 L6,48.5 C6,49.6045695 6.8954305,50.5 8,50.5 L42.0295937,50.5 C43.1341632,50.5 44.0295937,49.6045695 44.0295937,48.5 L44.0295937,19" id="Path-3"></path>
+                </g>
+                <circle id="Oval-5" cx="25" cy="24" r="6"></circle>
+            </g>
+        </g>
+    </g>
+</svg>
