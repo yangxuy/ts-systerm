@@ -9,8 +9,8 @@
             </el-form-item>
             <el-form-item label="商品规格">
                 <el-card>
-                    <div v-if="selectProperty.length>0">
-                        <template v-for="item in selectProperty">
+                    <div v-if="value.property.length>0">
+                        <template v-for="item in value.property">
                             <div style="display: flex;flex-direction: column">
                                 <label>{{item.name}}:</label>
                                 <el-checkbox-group v-if="item.selectModel===2" v-model="item.values">
@@ -21,8 +21,8 @@
                                 </el-radio-group>
                             </div>
                         </template>
-                        <el-table border :data="tableData" v-if="tableData.length>0">
-                            <el-table-column min-width="88px" v-for="item in selectProperty" :label="item.name"
+                        <el-table border :data="value.skuStockList" v-if="value.skuStockList.length>0">
+                            <el-table-column min-width="88px" v-for="item in value.property" :label="item.name"
                                              :key="item.id">
                                 <template slot-scope="scope">
                                     {{scope.row[item.name] ? scope.row[item.name]:''}}
@@ -98,11 +98,7 @@ import { goodsAttribute, goodsProperty } from '@/api/api';
 export default class StepTwo extends Vue {
   @Prop() value: Goods;
 
-  color: string[] = [];
-  // cap: any[] = [];
-  initData: Sku[] = [];
   goodsAttributeData: Property[] = [];
-  selectProperty: Property[] = [];
   selectParams: Property[] = [];
   // properId: string = '';
   // testUrl: any = 'http://img5.imgtn.bdimg.com/it/u=353153124,1043237645&fm=26&gp=0.jpg';
@@ -111,7 +107,7 @@ export default class StepTwo extends Vue {
   handlerChangePropertyId(val: number[]) {
     if (val) {
       goodsProperty('get', { attributeId: val }).then((res: any) => {
-        this.selectProperty = res.data.filter((v: Property) => v.propertyType === 1).map((v: Property) => {
+        this.value.property = res.data.filter((v: Property) => v.propertyType === 1).map((v: Property) => {
           return {
             ...v,
             values: []
@@ -129,58 +125,12 @@ export default class StepTwo extends Vue {
 
   // 获取需要添加图片的属性
   get picProperty() {
-    return this.selectProperty.filter((item: Property) => item.isPic).map((item: Property) => item.values)
-  }
-
-  // 获取属性合并列表
-  get tableData() {
-    let arrData: any = [];
-    // const res: any[] = [];
-    if (this.selectProperty.length < 0) {
-      return []
-    }
-    let empty = this.selectProperty.map((item: any) => {
-      return item.values instanceof Array ? item.values : [item.values]
-    });
-    // example empty= [['白色','黑色'],['X','XL']]
-    const dfs = (depth: number, data: string[], list: any[]) => {
-      if (list.length <= depth) {
-        let data2 = data.toString();
-        arrData.push(data2);
-        return
-      }
-      const row = list[depth];
-      for (let i = 0; i < row.length; i++) {
-        data[depth] = row[i];
-        dfs(depth + 1, data, list)
-      }
-    };
-    dfs(0, [], empty);
-    //example arrData=['白色,X','白色,XL','黑色,X','黑色,XL']
-    if (arrData.length <= 0) {
-      return []
-    }
-    for (let i = 0; i < arrData.length; i++) {
-      let sku: any = {};
-      for (let j = 0; j < arrData[i].split(',').length; j++) {
-        // sku={'颜色':'白色','尺寸':'X',price: '', stock: '', stockAlarm: '' }
-        sku[this.selectProperty[j].name] = arrData[i].split(',')[j];
-        sku = { ...sku, price: '', stock: '', stockAlarm: '' }
-      }
-      this.initData.push({
-        ...sku
-      })
-    }
-    return this.initData
-  }
-
-  set tableData(v: any) {
-    this.initData = v
+    return this.value.property.filter((item: Property) => item.isPic).map((item: Property) => item.values)
   }
 
   get needPictureList() {
     const empty: string[] = [];
-    this.selectProperty.forEach((v) => {
+    this.value.property.forEach((v) => {
       if (v.needPic === 1) {
         if (v.values) {
           if (v.values instanceof Array) {
@@ -201,11 +151,7 @@ export default class StepTwo extends Vue {
   }
 
   handlerDelItem(index: number) {
-    this.tableData.splice(index, 1)
-  }
-
-  checkChange(v: any[]) {
-    this.color = v
+    // this.tableData.splice(index, 1)
   }
 
   setData() {
@@ -217,11 +163,8 @@ export default class StepTwo extends Vue {
   }
 
   created() {
-    console.log(this.value.skuStockList.length)
     this.setData();
-    this.tableData = this.value.skuStockList;
-    console.log(this.tableData);
-    this.selectProperty = [
+    this.value.property = [
       {
         id: 1,
         name: '颜色',

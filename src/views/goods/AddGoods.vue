@@ -79,7 +79,7 @@ interface Table extends Goods {
   updateTime: string;
 }
 
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
 @Component({
   components: { StepOne, StepTwo }
@@ -108,7 +108,7 @@ export default class AddGoods extends Vue {
     brandId: '',
     subHead: '',
     attributeId: '',
-    property:[],
+    property: [],
     summary: '',
     itemNum: '',
     price: '',
@@ -118,6 +118,48 @@ export default class AddGoods extends Vue {
     orderNum: 0,
     skuStockList: []
   };
+
+  @Watch('formData.property', { deep: true })
+  handlerSetSkuStockList(v: Property[]) {
+
+    let arrData: any = [];
+
+    let empty = v.map((item: any) => {
+      return item.values instanceof Array ? item.values : [item.values]
+    });
+    if (empty.length <= 1) {
+      this.formData.skuStockList = []
+    }
+    // example empty= [['白色','黑色'],['X']]
+    const dfs = (depth: number, data: string[], list: any[]) => {
+      if (list.length <= depth) {
+        let data2 = data.toString();
+        arrData.push(data2);
+        return
+      }
+      const row = list[depth];
+      for (let i = 0; i < row.length; i++) {
+        data[depth] = row[i];
+        dfs(depth + 1, data, list)
+      }
+    };
+    dfs(0, [], empty);
+    //example arrData=['白色,X','白色,XL','黑色,X','黑色,XL']
+    if (arrData.length <= 0) {
+      return []
+    }
+    for (let i = 0; i < arrData.length; i++) {
+      let sku: any = {};
+      for (let j = 0; j < arrData[i].split(',').length; j++) {
+        // sku={'颜色':'白色','尺寸':'X',price: '', stock: '', stockAlarm: '' }
+        sku[v[j].name] = arrData[i].split(',')[j];
+        sku = { ...sku, price: '', stock: '', stockAlarm: '' }
+      }
+      this.formData.skuStockList.push({
+        ...sku
+      })
+    }
+  }
 
   handlerAddGoods() {
     this.formData.id = 0;
