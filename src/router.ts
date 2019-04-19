@@ -42,12 +42,12 @@ export default new Router({
                     component: () => import('./views/goods/GoodsBrand.vue')
                 },
                 {
-                    path: '/home/brand-property',
+                    path: '/home/goods-property',
                     name: 'GoodsProperty',
                     component: () => import('./views/goods/GoodsProperty.vue')
                 },
                 {
-                    path: '/home/brand-attribute',
+                    path: '/home/goods-attribute',
                     name: 'GoodsAttribute',
                     component: () => import('./views/goods/GoodsAttribute.vue')
                 }

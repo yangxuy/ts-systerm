@@ -27,4 +27,4 @@ export const goodsGetManage = (methods: Methods, data?: any) => ajax(methods, '/
 export const goodsProperty = (methods: Methods, data?: any) => ajax(methods, '/api/property', data); // 商品属性
 export const goodsGetProperty = (methods: Methods = 'post', data?: any) => ajax(methods, '/api/property/list', data); // 商品属性获取
 export const goodsAttribute = (methods: Methods, data?: any) => ajax(methods, '/api/attribute', data); // 商品参数
-export const goodsGetAttribute = (methods: Methods='post', data?: any) => ajax(methods, '/api/attribute/list', data); // 商品参数
+export const goodsGetAttribute = (methods: Methods = 'post', data?: any) => ajax(methods, '/api/attribute/list', data); // 商品参数

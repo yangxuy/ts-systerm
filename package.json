@@ -7,8 +7,12 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "element-ui": "^2.7.0",
+    "@types/echarts": "^4.1.8",
+    "@types/qs": "^6.5.3",
     "axios": "^0.18.0",
+    "echarts": "^4.2.1",
+    "element-ui": "^2.7.0",
+    "qs": "^6.5.2",
     "vue": "^2.6.6",
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^8.0.0",

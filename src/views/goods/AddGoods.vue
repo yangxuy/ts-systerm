@@ -54,188 +54,172 @@
             </div>
         </div>
 
-        <el-dialog title="修改" :visible.sync="visibleDialog"
-                   append-to-body width="500px" @close="restForm">
-            <el-form :model="formData" ref="goodsForm" label-width="88px">
-                <el-form-item label="商品名称" prop="name">
-                    <el-input class="dialog-input" v-model="formData.name" placehoder="请输入商品名称如：红烧牛肉面"></el-input>
-                </el-form-item>
-                <el-form-item label="所属类型" prop="typeId">
-                    <el-select v-model="formData.typeId">
-                        <el-option v-for="item in sortType" :value="item.id" :label="item.name"
-                                   :key="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="所属品牌" prop="brandId">
-                    <el-select v-model="formData.brandId">
-                        <el-option v-for="item in brandType" :value="item.id" :label="item.name"
-                                   :key="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="副标题">
-                    <el-input class="dialog-input" v-model="formData.subHead"></el-input>
-                </el-form-item>
-                <el-form-item label="描述">
-                    <el-input class="dialog-input" type="textarea" v-model="formData.summary"></el-input>
-                </el-form-item>
-                <el-form-item label="货号">
-                    <el-input class="dialog-input" v-model.number="formData.itemNum"></el-input>
-                </el-form-item>
-                <el-form-item label="零售价">
-                    <el-input class="dialog-input" v-model.number="formData.price"></el-input>
-                </el-form-item>
-                <el-form-item label="市场价">
-                    <el-input class="dialog-input" v-model.number="formData.marketPrice"></el-input>
-                </el-form-item>
-                <el-form-item label="库存">
-                    <el-input class="dialog-input" v-model.number="formData.stock"></el-input>
-                </el-form-item>
-                <el-form-item label="重量">
-                    <el-input class="dialog-input" v-model.number="formData.weight"></el-input>
-                </el-form-item>
-                <el-form-item label="排序">
-                    <el-input class="dialog-input" v-model.number="formData.orderNum"></el-input>
-                </el-form-item>
-                <el-form-item label="">
-                    <el-button size="small" type="primary" @click="handlerSubmit">确定</el-button>
-                </el-form-item>
-            </el-form>
+        <el-dialog title="修改" :visible.sync="visibleDialog" :close-on-click-modal="false"
+                   append-to-body width="700px" @close="restForm">
+            <el-steps :active="active" finish-status="success">
+                <el-step title="步骤 1"></el-step>
+                <el-step title="步骤 2"></el-step>
+                <el-step title="步骤 3"></el-step>
+            </el-steps>
+            <StepOne v-if="active===0" v-model="formData"></StepOne>
+            <StepTwo v-if="active===1" v-model="formData"></StepTwo>
+            <el-button style="margin-top: 12px;" :disabled="active===0" @click="preStep">上一步</el-button>
+            <el-button style="margin-top: 12px;" :disabled="active===3" @click="nextStep">下一步</el-button>
         </el-dialog>
     </LoadingBox>
 </template>
 
 <script lang="ts">
-    import {goodsSortManage, goodsBrandManage, goodsManage, goodsGetManage} from '@/api/api';
+import StepOne from './process/StepOne.vue'
+import StepTwo from './process/StepTwo.vue'
+import { goodsSortManage, goodsBrandManage, goodsManage, goodsGetManage } from '@/api/api';
 
-    interface Table extends Goods {
-        createTime: string;
-        updateTime: string;
+interface Table extends Goods {
+  createTime: string;
+  updateTime: string;
+}
+
+import { Component, Vue } from 'vue-property-decorator';
+
+@Component({
+  components: { StepOne, StepTwo }
+})
+export default class AddGoods extends Vue {
+  searchData: Page<goodsSearch> = {
+    page: 1,
+    pageSize: 50,
+    info: {
+      name: '',
+      beginDate: '',
+      endDate: ''
     }
+  };
+  total: number = 0;
+  active: number = 0;
+  loading: boolean = false;
+  visibleDialog: boolean = false;
+  tableData: Table[] = [];
+  sortType: Sorts[] = [];
+  brandType: Brand[] = [];
+  formData: Goods = {
+    id: 0,
+    name: '',
+    typeId: '',
+    brandId: '',
+    subHead: '',
+    attributeId: '',
+    property:[],
+    summary: '',
+    itemNum: '',
+    price: '',
+    marketPrice: '',
+    stock: 0,
+    weight: 0,
+    orderNum: 0,
+    skuStockList: []
+  };
 
-    import {Component, Vue} from 'vue-property-decorator';
+  handlerAddGoods() {
+    this.formData.id = 0;
+    this.visibleDialog = true;
+  }
 
-    @Component
-    export default class AddGoods extends Vue {
-        searchData: Page<goodsSearch> = {
-            page: 1,
-            pageSize: 50,
-            info: {
-                name: '',
-                beginDate: '',
-                endDate: ''
+  handlerChangeItem(item: Goods) {
+    this.formData = item;
+    this.visibleDialog = true;
+  }
+
+  handlerFelItem(id: number) {
+    goodsManage('delete', id).then((res: any) => {
+      if (res.code === this.$global.HTTPS) {
+        this.setData();
+      }
+    });
+  }
+
+  handlerSubmit() {
+    const goodsForm = this.$refs['goodsForm'] as any;
+    const base = () => {
+      this.$message.success('成功');
+      this.setData();
+      goodsForm.resetFields();
+      this.visibleDialog = false;
+    };
+    this.loading = true;
+    goodsForm.validate((valid: boolean) => {
+      if (valid) {
+        if (this.formData.id) {
+          goodsManage('put', this.formData).then((res: any) => {
+            this.loading = false;
+            if (res.code === this.$global.HTTPS) {
+              base();
             }
-        };
-        total: number = 0;
-        loading: boolean = false;
-        visibleDialog: boolean = false;
-        tableData: Table[] = [];
-        sortType: Sorts[] = [];
-        brandType: Brand[] = [];
-        formData: Goods = {
-            id: 0,
-            name: '',
-            typeId: '',
-            brandId: '',
-            subHead: '',
-            summary: '',
-            itemNum: '',
-            price: '',
-            marketPrice: '',
-            stock: 0,
-            weight: 0,
-            orderNum: 0
-        };
-
-        handlerAddGoods() {
-            this.formData.id = 0;
-            this.visibleDialog = true;
+          });
+        } else {
+          goodsManage('post', this.formData).then((res: any) => {
+            this.loading = false;
+            if (res.code === this.$global.HTTPS) {
+              base();
+            }
+          });
         }
+      } else {
+        this.$message.error('请按规则填写');
+      }
+    });
+  }
 
-        handlerChangeItem(item: Goods) {
-            this.formData = item;
-            this.visibleDialog = true;
-        }
+  restForm() {
 
-        handlerFelItem(id: number) {
-            goodsManage('delete', id).then((res: any) => {
-                if (res.code === this.$global.HTTPS) {
-                    this.setData();
-                }
-            });
-        }
+  }
 
-        handlerSubmit() {
-            const goodsForm = this.$refs['goodsForm'] as any;
-            const base = () => {
-                this.$message.success('成功');
-                this.setData();
-                goodsForm.resetFields();
-                this.visibleDialog = false;
-            };
-            this.loading = true;
-            goodsForm.validate((valid: boolean) => {
-                if (valid) {
-                    if (this.formData.id) {
-                        goodsManage('put', this.formData).then((res: any) => {
-                            this.loading = false;
-                            if (res.code === this.$global.HTTPS) {
-                                base();
-                            }
-                        });
-                    } else {
-                        goodsManage('post', this.formData).then((res: any) => {
-                            this.loading = false;
-                            if (res.code === this.$global.HTTPS) {
-                                base();
-                            }
-                        });
-                    }
-                } else {
-                    this.$message.error('请按规则填写');
-                }
-            });
-        }
+  handleSizeChange(v: number) {
+    this.searchData.pageSize = v;
+    this.setData();
+  }
 
-        restForm() {
-            const goodsForm = this.$refs['goodsForm'] as any;
-            goodsForm.resetFields();
-        }
+  handleCurrentChange(v: number) {
+    this.searchData.page = v;
+    this.setData();
+  }
 
-        handleSizeChange(v: number) {
-            this.searchData.pageSize = v;
-            this.setData();
-        }
+  handlerSearch() {
+    this.searchData.page = 1;
+    this.setData();
+  }
 
-        handleCurrentChange(v: number) {
-            this.searchData.page = v;
-            this.setData();
-        }
+  setData() {
+    goodsGetManage('post', this.searchData).then((res: any) => {
+      if (res.code === this.$global.HTTPS) {
+        this.tableData = res.data.list;
+        this.total = res.data.total;
+      }
+    });
+  }
 
-        handlerSearch() {
-            this.searchData.page = 1;
-            this.setData();
-        }
-
-        setData() {
-            goodsGetManage('post', this.searchData).then((res: any) => {
-                if (res.code === this.$global.HTTPS) {
-                    this.tableData = res.data.list;
-                    this.total = res.data.total;
-                }
-            });
-        }
-
-        created() {
-            Promise.all([goodsSortManage('get'), goodsBrandManage('get')]).then((resArr: any[]) => {
-                this.sortType = resArr[0].data;
-                this.brandType = resArr[1].data;
-            });
-        }
-
-        mounted() {
-            this.setData();
-        }
+  preStep() {
+    if (this.active > 0) {
+      this.active--;
     }
+  }
+
+  nextStep() {
+    if (this.active < 3) {
+      this.active++
+    }
+  }
+
+  created() {
+    Promise.all([goodsSortManage('get'), goodsBrandManage('get')]).then((resArr: any[]) => {
+      this.sortType = resArr[0].data;
+      this.brandType = resArr[1].data;
+    });
+  }
+
+  mounted() {
+    this.setData();
+  }
+}
 </script>
 
 <style scoped>

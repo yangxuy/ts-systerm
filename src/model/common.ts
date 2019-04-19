@@ -1,22 +1,27 @@
 interface Common {
-    id: number;
-    data: any;
-    code: number;
-    msg: string;
+  id: number;
+  data: any;
+  code: number;
+  msg: string;
 }
 
 // rules
 interface Rules {
-    NotEmpty: object;
-    number: object;
-    date: object;
+  NotEmpty: object;
+  number: object;
+  date: object;
 
-    [propName: string]: object;
+  [propName: string]: object;
 }
 
 // 分页
 interface Page<T> {
-    page: number;
-    pageSize: number;
-    info: T;
+  page: number;
+  pageSize: number;
+  info: T;
+}
+
+// 对象
+interface Obj {
+  [propName: string]: object;
 }

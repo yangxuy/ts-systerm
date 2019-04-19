@@ -15,6 +15,15 @@ export default {
         });
         return empty;
     },
+    filterArrIdToArrName: (arrId: number[], arrName: any[]) => {
+        let empty: string[] = [];
+        arrName.forEach((v) => {
+            if (arrId.indexOf(v.id) > -1) {
+                empty.push(v.name)
+            }
+        })
+        return empty.join(',')
+    },
     filterData: (v: Date) => {
         if (v) {
             const date = new Date(v);

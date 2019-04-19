@@ -51,118 +51,118 @@
     }
 </style>
 <script lang="ts">
-    import SideMenu from '@/components/SideMenu.vue';
-    import {Component, Vue} from 'vue-property-decorator';
+import SideMenu from '@/components/SideMenu.vue';
+import { Component, Vue } from 'vue-property-decorator';
 
-    @Component({
-        components: {SideMenu}
-    })
-    export default class Home extends Vue {
-        menu: any[] = [
-            {
-                index: '1',
-                path: '/home/index',
-                name: '首页',
-                icon: require('@/assets/home.svg'),
-                children: [],
-                meta: {
-                    check: false,
-                    modify: false,
-                    page_id: 1
-                }
-            },
-            {
-                index: 'usermanager',
-                path: '/home/user-list',
-                name: '用户管理',
-                icon: require('@/assets/home.svg'),
-                children: [
-                    {
-                        index: 'user-list',
-                        path: '/home/user-list',
-                        name: '用户列表',
-                        icon: '',
-                        meta: {
-                            check: false,
-                            modify: false,
-                            page_id: 1
-                        }
-                    }
-                ],
-                meta: {
-                    check: false,
-                    modify: false,
-                    page_id: 1
-                }
-            },
-            {
-                index: 'goodsmanager',
-                path: '/home/add-goods',
-                name: '商品管理',
-                icon: require('@/assets/home.svg'),
-                meta: {
-                    check: false,
-                    modify: false,
-                    page_id: 1
-                },
-                children: [
-                    {
-                        index: 'user-list',
-                        path: '/home/add-goods',
-                        name: '添加商品',
-                        icon: '',
-                        meta: {
-                            check: false,
-                            modify: false,
-                            page_id: 1
-                        }
-                    },
-                    {
-                        index: 'goods-sort',
-                        path: '/home/sort-goods',
-                        name: '商品分类',
-                        icon: '',
-                        meta: {
-                            check: false,
-                            modify: false,
-                            page_id: 1
-                        }
-                    },
-                    {
-                        index: 'goods-brand',
-                        path: '/home/brand-goods',
-                        name: '商品品牌',
-                        icon: '',
-                        meta: {
-                            check: false,
-                            modify: false,
-                            page_id: 1
-                        }
-                    },
-                    {
-                        index: 'goods-property',
-                        path: '/home/brand-property',
-                        name: '商品属性',
-                        icon: '',
-                        meta: {
-                            check: false,
-                            modify: false,
-                            page_id: 1
-                        }
-                    },
-                    {
-                        index: 'goods-attribute',
-                        path: '/home/brand-attribute',
-                        name: '商品参数',
-                        icon: '',
-                        meta: {
-                            check: false,
-                            modify: false,
-                            page_id: 1
-                        }
-                    }
-                ]
-            }
-        ];
+@Component({
+  components: { SideMenu }
+})
+export default class Home extends Vue {
+  menu: any[] = [
+    {
+      index: '1',
+      path: '/home/index',
+      name: '首页',
+      icon: require('@/assets/home.svg'),
+      children: [],
+      meta: {
+        check: false,
+        modify: false,
+        page_id: 1
+      }
+    },
+    {
+      index: 'usermanager',
+      path: '/home/user-list',
+      name: '用户管理',
+      icon: require('@/assets/home.svg'),
+      children: [
+        {
+          index: 'user-list',
+          path: '/home/user-list',
+          name: '用户列表',
+          icon: '',
+          meta: {
+            check: false,
+            modify: false,
+            page_id: 1
+          }
+        }
+      ],
+      meta: {
+        check: false,
+        modify: false,
+        page_id: 1
+      }
+    },
+    {
+      index: 'goodsmanager',
+      path: '/home/add-goods',
+      name: '商品管理',
+      icon: require('@/assets/home.svg'),
+      meta: {
+        check: false,
+        modify: false,
+        page_id: 1
+      },
+      children: [
+        {
+          index: 'user-list',
+          path: '/home/add-goods',
+          name: '添加商品',
+          icon: '',
+          meta: {
+            check: false,
+            modify: false,
+            page_id: 1
+          }
+        },
+        {
+          index: 'goods-sort',
+          path: '/home/sort-goods',
+          name: '商品分类',
+          icon: '',
+          meta: {
+            check: false,
+            modify: false,
+            page_id: 1
+          }
+        },
+        {
+          index: 'goods-brand',
+          path: '/home/brand-goods',
+          name: '商品品牌',
+          icon: '',
+          meta: {
+            check: false,
+            modify: false,
+            page_id: 1
+          }
+        },
+        // {
+        //     index: 'goods-property',
+        //     path: '/home/brand-property',
+        //     name: '商品属性',
+        //     icon: '',
+        //     meta: {
+        //         check: false,
+        //         modify: false,
+        //         page_id: 1
+        //     }
+        // },
+        {
+          index: 'goods-attribute',
+          path: '/home/goods-attribute',
+          name: '商品类型',
+          icon: '',
+          meta: {
+            check: false,
+            modify: false,
+            page_id: 1
+          }
+        }
+      ]
     }
+  ];
+}
 </script>
