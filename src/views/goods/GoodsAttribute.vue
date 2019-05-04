@@ -1,5 +1,5 @@
 <template>
-    <LoadingBox :loading="loading">
+    <LoadingBox :loading="false">
         <div class="content-box">
             <div class="goods-header">
                 <span class="title"><i class="el-icon-tickets"></i>数据列表</span>
@@ -9,11 +9,10 @@
                 <el-table :data="tableData" border>
                     <el-table-column label="编号" prop="id"></el-table-column>
                     <el-table-column label="名称" prop="name"></el-table-column>
+                    <el-table-column label="排序" prop="orderNum"></el-table-column>
                     <el-table-column align="center" label="设置">
                         <template slot-scope="scope">
-                            <el-button size="small" type="primary" @click="handlerAddProperty(scope.row.id)">属性列表
-                            </el-button>
-                            <el-button size="small" type="primary" @click="handlerAddParam(scope.row.id)">参数列表
+                            <el-button size="small" type="primary" @click="handlerAddProperty(scope.row.id)">添加属性值
                             </el-button>
                         </template>
                     </el-table-column>
@@ -42,12 +41,19 @@
                 <el-form-item label="名称" prop="name" :rules="rules.NotEmpty">
                     <el-input class="dialog-input" v-model="formData.name"></el-input>
                 </el-form-item>
-                <!--                <el-form-item label="属性">-->
-                <!--                    <el-select v-model="formData.propertyId" multiple filterable clearable>-->
-                <!--                        <el-option v-for="item in propertySelect" :label="item.name" :value="item.id"-->
-                <!--                                   :key="item.id"></el-option>-->
-                <!--                    </el-select>-->
-                <!--                </el-form-item>-->
+                <el-form-item label="所属分类">
+                    <el-select v-model="formData.categoryId" multiple filterable clearable>
+                        <el-option v-for="item in propertySelect" :label="item.name" :value="item.id"
+                                   :key="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="销售属性">
+                    <el-radio v-model="formData.sale" :label="1">是</el-radio>
+                    <el-radio v-model="formData.sale" :label="0">不是</el-radio>
+                </el-form-item>
+                <el-form-item label="排序">
+                    <el-input class="dialog-input" v-model.number="formData.orderNum"></el-input>
+                </el-form-item>
                 <el-form-item label="">
                     <el-button size="small" type="primary" @click="handlerSubmit">确定</el-button>
                 </el-form-item>
@@ -63,13 +69,13 @@ interface Table extends Attribute {
 }
 
 import rules from '@/utils/rules';
-import { Component, Vue } from 'vue-property-decorator'
-import { goodsAttribute, goodsProperty, goodsGetAttribute } from '@/api/api';
+import { Component, Vue } from 'vue-property-decorator';
+import api from '@/api/api';
 
 @Component
 export default class GoodsAttribute extends Vue {
   tableData: Table[] = [];
-  propertySelect: Property[] = [];
+  propertySelect: AttributeValue[] = [];
   total: number = 0;
   rules: Rules = rules;
   loading: boolean = false;
@@ -77,25 +83,24 @@ export default class GoodsAttribute extends Vue {
   formData: Attribute = {
     id: 0,
     name: '',
-    propertyId: [],
+    categoryId: '',
+    sale: 0,
+    orderNum: ''
   };
-  searchData: Page<goodsSearch> = {
+  searchData: Page = {
     page: 1,
     pageSize: 50,
-    info: {
-      name: ''
-    }
+    name: ''
   };
 
   setData() {
     this.loading = true;
-    goodsGetAttribute('post', this.searchData).then((res: any) => {
+    api.goodsAttribute('get').then((res: Common<any>) => {
       this.loading = false;
       if (res.code === this.$global.HTTPS) {
-        this.tableData = res.data.list;
-        this.total = res.data.total;
+        this.tableData = res.data;
       }
-    })
+    });
   }
 
   handlerAddBrand() {
@@ -109,12 +114,12 @@ export default class GoodsAttribute extends Vue {
   }
 
   handlerDelItem(id: number) {
-    goodsAttribute('delete', id).then((res: any) => {
+    api.goodsAttribute('delete', id).then((res: Common<any>) => {
       if (res.code === this.$global.HTTPS) {
         this.$message.success('删除成功');
         this.setData();
       }
-    })
+    });
   }
 
   handlerSubmit() {
@@ -123,18 +128,18 @@ export default class GoodsAttribute extends Vue {
       if (valid) {
         this.loading = true;
         const methods = this.formData.id ? 'put' : 'post';
-        goodsAttribute(methods, this.formData).then((res: any) => {
+        api.goodsAttribute(methods, this.formData).then((res: Common<any>) => {
           this.loading = false;
           if (res.code === this.$global.HTTPS) {
             this.$message.success('成功');
             this.setData();
             this.restForm();
           } else {
-            this.$message.error(res.message)
+            this.$message.error(res.message);
           }
-        })
+        });
       }
-    })
+    });
   }
 
   handleSizeChange(v: number) {
@@ -149,34 +154,32 @@ export default class GoodsAttribute extends Vue {
 
   // 获取属性
   getProperty() {
-    goodsProperty('get').then((res: any) => {
+    api.goodsSortManage('get').then((res: any) => {
       if (res.code === this.$global.HTTPS) {
-        this.propertySelect = res.data
+        this.propertySelect = res.data;
       } else {
-        this.$message.error(res.message)
+        this.$message.error(res.message);
       }
-    })
+    });
   }
 
   restForm() {
     this.formData = {
       id: 0,
       name: '',
-      propertyId: [],
+      categoryId: '',
+      orderNum: '',
+      sale: 1
     };
     this.visibleDialog = false;
   }
 
   handlerAddProperty(id: number) {
-    this.$router.push(`/home/goods-property?id=${id}&type=1`)
-  }
-
-  handlerAddParam(id: number) {
-    this.$router.push(`/home/goods-property?id=${id}&type=2`)
+    this.$router.push(`/home/goods-property?id=${id}`);
   }
 
   created() {
-    this.getProperty()
+    this.getProperty();
   }
 
   mounted() {

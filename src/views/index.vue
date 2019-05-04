@@ -1,6 +1,17 @@
 <template>
     <div class="index">
-        <div id="echart" style="width: 100%;height: 400px"></div>
+        <!--        <div id="echart" style="width: 100%;height: 400px"></div>-->
+        <Swiper autoplay showIndicator height="415px">
+            <Slide>
+                <img src="https://pic-1256941443.file.myqcloud.com/show/1556260740457228349.jpeg">
+            </Slide>
+            <Slide>
+                <img src="https://pic-1256941443.file.myqcloud.com/show/1556503821470977187.jpeg">
+            </Slide>
+            <Slide>
+                <img src="https://pic-1256941443.file.myqcloud.com/show/1556190433501897603.jpeg">
+            </Slide>
+        </Swiper>
     </div>
 </template>
 
@@ -14,13 +25,21 @@ import 'echarts/lib/component/legend';
 import 'echarts/lib/component/grid';
 
 import 'echarts/lib/chart/line';
-import 'echarts/lib/chart/bar'
+import 'echarts/lib/chart/bar';
 import { Component, Vue } from 'vue-property-decorator';
 
 import ECharts = echarts.ECharts;
 import EChartOption = echarts.EChartOption;
 
-@Component
+import Swiper from '@/components/Swiper.vue';
+import Slide from '@/components/Slide.vue';
+
+@Component({
+  components: {
+    Swiper,
+    Slide
+  }
+})
 export default class Index extends Vue {
 
   setEchart() {
@@ -70,7 +89,7 @@ export default class Index extends Vue {
       },
       xAxis: {
         name: '商品',
-        data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+        data: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子']
       },
       yAxis: {
         name: '数量'
@@ -87,11 +106,13 @@ export default class Index extends Vue {
   }
 
   mounted() {
-    this.setEchart()
+    // this.setEchart();
   }
 }
 </script>
 
 <style scoped>
-
+    img {
+        height: 100%;
+    }
 </style>

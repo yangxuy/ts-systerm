@@ -153,7 +153,7 @@ export default class Home extends Vue {
         {
           index: 'goods-attribute',
           path: '/home/goods-attribute',
-          name: '商品类型',
+          name: '商品属性',
           icon: '',
           meta: {
             check: false,

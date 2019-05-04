@@ -2,26 +2,22 @@ interface Sku {
   price: string | number;
   stock: string | number;
   stockAlarm: string | number;
+  str: string | number;
 
-  [propName: string]: string|number;
+  [propName: string]: string | number;
 }
 
 interface Goods {
   id: number;
   name: string; // 名称
-  typeId: number | string; // 所属类型id
+  categoryId: number | string; // 所属类型id
   brandId: number | string; // 所属品牌id
   subHead: string; // 副标题
-  summary: string; // 描述
-  itemNum: string;// 货号
-  price: number | string; // 零售价
-  marketPrice: number | string; // 市场价
-  stock: number; // 库存
-  weight: number; // 重量，单位克
-  orderNum: number; // 排序
-  attributeId: number | string;
-  skuStockList: Sku[],
-  property: Property[],
+  detail: string; // 描述
+  orderNum: string | number; // 描述
+  unit: string; // 描述
+  pictureList: string; // 商品图片
+  status: number; // 商品状态
 }
 
 interface goodsSearch {
@@ -34,9 +30,8 @@ interface goodsSearch {
 interface Sorts {
   id: number;
   name: string;
-  order: string;
-  count?: string;
-  unit: string;
+  parentId: string | string;
+  orderNum: number | string;
 }
 
 interface Brand {
@@ -50,21 +45,17 @@ interface Brand {
   show: number; // 是否展示
 }
 
-interface Property {
+interface AttributeValue {
   id?: number; //
-  attributeId: number; // 所属类型ID
-  propertyType: number; // 1主 2负
-  name: string;  // 名称
+  value: string; // 所属类型ID
+  attributeId: number | string;
   orderNum: string | number; // 排序
-  propertyList: string[]; // 属性值
-  selectModel: number; // 单选/复选
-  needPic: number; // 属性值是否需要图片描述
-
-  [propName: string]: any;
 }
 
 interface Attribute {
   id?: number;
   name: string;
-  propertyId: number[]
+  categoryId: string | number;
+  sale: number;
+  orderNum: number | string;
 }

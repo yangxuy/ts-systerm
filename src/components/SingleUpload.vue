@@ -2,62 +2,59 @@
     <div>
         <el-upload
                 class="avatar-uploader"
+                list-type="picture-card"
                 action="string"
                 :show-file-list="false"
                 :http-request="handlerSend">
-            <img v-if="fileList.url" :src="baseUrl+'/'+fileList.url" class="avatar">
+            <img v-if="value" :src="baseUrl+'/'+value" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
+        <el-dialog :visible.sync="dialogVisible" :append-to-body="true">
+            <img width="100%" :src="dialogImageUrl" alt="">
+        </el-dialog>
     </div>
 </template>
 
 <script lang=ts>
 interface File {
-  name: string;
-  url: string;
+    name: string;
+    url: string;
 }
 
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator';
 import { imgSend } from '@/api/api';
 
 @Component
 export default class SingleUpload extends Vue {
-  @Prop() value: string;
-  dialogVisible: boolean = false;
+    @Prop() value: string;
+    dialogVisible: boolean = false;
 
-  get baseUrl() {
-    return process.env.VUE_APP_API_URL
-  }
-
-  get fileList() {
-    return {
-      name: this.value ? this.value.substr(this.value.lastIndexOf("/") + 1) : '',
-      url: this.value
-    }
-  }
-
-  emitInput(val: any) {
-    this.$emit('input', val)
-  }
-
-  handlerSend(params: any) {
-    // this.$emit('input', 'http://pic37.nipic.com/20140113/8800276_184927469000_2.png')
-    const _file = params.file;
-    const isLt2M = _file.size / 1024 / 1024 < 2;
-    var formData = new FormData();
-    formData.append("file", _file);
-
-    if (!isLt2M) {
-      this.$message.error("请上传2M以下的.xlsx文件");
-      return false;
+    get baseUrl() {
+        return process.env.VUE_APP_API_URL;
     }
 
-    imgSend('post', formData).then((res: any) => {
-      if (res.code === this.$global.HTTPS) {
-        this.emitInput(res.data)
-      }
-    })
-  }
+    emitInput(val: any) {
+        this.$emit('input', val);
+    }
+
+    handlerSend(params: any) {
+        // this.$emit('input', 'http://pic37.nipic.com/20140113/8800276_184927469000_2.png')
+        const _file = params.file;
+        const isLt2M = _file.size / 1024 / 1024 < 2;
+        var formData = new FormData();
+        formData.append('file', _file);
+
+        if (!isLt2M) {
+            this.$message.error('请上传2M以下的.xlsx文件');
+            return false;
+        }
+
+        imgSend('post', formData).then((res: Common<any>) => {
+            if (res.code === this.$global.HTTPS) {
+                this.emitInput(res.data);
+            }
+        });
+    }
 }
 </script>
 
@@ -77,15 +74,12 @@ export default class SingleUpload extends Vue {
     .avatar-uploader-icon {
         font-size: 28px;
         color: #8c939d;
-        width: 100px;
-        height: 100px;
-        line-height: 100px;
         text-align: center;
     }
 
     .avatar {
-        width: 100px;
-        height: 100px;
+        width: 100%;
+        height: 100%;
         display: block;
     }
 </style>

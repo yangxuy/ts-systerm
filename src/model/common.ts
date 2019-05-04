@@ -1,8 +1,8 @@
-interface Common {
+interface Common<T> {
   id: number;
-  data: any;
+  data: T;
   code: number;
-  msg: string;
+  message: string;
 }
 
 // rules
@@ -15,10 +15,17 @@ interface Rules {
 }
 
 // 分页
-interface Page<T> {
+interface Page {
   page: number;
   pageSize: number;
-  info: T;
+
+  [propName: string]: string | number;
+}
+
+// 分页返回
+interface PageRes {
+  total: number;
+  list: any[];
 }
 
 // 对象

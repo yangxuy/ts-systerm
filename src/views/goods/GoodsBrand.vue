@@ -61,8 +61,8 @@
 </style>
 
 <script lang="ts">
-import rules from '@/utils/rules'
-import { goodsBrandManage, imgSend } from '@/api/api';
+import rules from '@/utils/rules';
+import api from '@/api/api';
 import { Component, Vue } from 'vue-property-decorator';
 
 interface table extends Brand {
@@ -89,7 +89,7 @@ export default class GoodsBrand extends Vue {
 
   setData() {
     this.loading = true;
-    goodsBrandManage('get').then((res: any) => {
+    api.goodsBrandManage('get').then((res: Common<any>) => {
       this.loading = false;
       if (res.code === 0) {
         this.tableData = res.data;
@@ -105,12 +105,12 @@ export default class GoodsBrand extends Vue {
   }
 
   handlerChangeItem(item: Brand) {
-    this.formData = item;
+    this.formData = Object.assign({}, item);
     this.visibleDialog = true;
   }
 
   handlerDelItem(id: number) {
-    goodsBrandManage('delete', id).then((res: any) => {
+    api.goodsBrandManage('delete', id).then((res: Common<any>) => {
       if (res.code === this.$global.HTTPS) {
         this.$message.success('成功');
         this.setData();
@@ -118,49 +118,12 @@ export default class GoodsBrand extends Vue {
     });
   }
 
-  handlerSendImg(params: any) {
-    const _file = params.file;
-    const isLt2M = _file.size / 1024 / 1024 < 2;
-    var formData = new FormData();
-    formData.append("file", _file);
-
-    if (!isLt2M) {
-      this.$message.error("请上传2M以下的.xlsx文件");
-      return false;
-    }
-
-    imgSend('post', formData).then((res: any) => {
-      if (res.code === this.$global.HTTPS) {
-        this.formData.brandLogo = res.data
-      }
-    })
-  }
-
-  handlerSendBigImg(params: any) {
-    const _file = params.file;
-    const isLt2M = _file.size / 1024 / 1024 < 2;
-    var formData = new FormData();
-    formData.append("file", _file);
-
-    if (!isLt2M) {
-      this.$message.error("请上传2M以下的.xlsx文件");
-      return false;
-    }
-
-    imgSend('post', formData).then((res: any) => {
-      if (res.code === this.$global.HTTPS) {
-        this.formData.brandBigIcon = res.data
-      }
-    })
-  }
-
   handlerSubmit() {
     const rulerDom = this.$refs['brand'] as any;
     rulerDom.validate((valid: boolean) => {
         if (valid) {
           this.loading = true;
-          const methods = this.formData.id ? 'put' : 'post';
-          goodsBrandManage(methods, this.formData).then((res: any) => {
+          api.goodsBrandManage('post', this.formData).then((res: Common<any>) => {
             if (res.code === this.$global.HTTPS) {
               this.$message.success('成功');
               this.setData();

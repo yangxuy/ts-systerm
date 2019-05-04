@@ -2,15 +2,15 @@ import Vue from 'vue';
 import App from './App.vue';
 import './assets/css/common.scss';
 import router from './router';
-import global from './utils/global'
+import global from './utils/global';
 import fitllers from './fillters/index';
-import qs from 'qs'
+import qs from 'qs';
 
 Vue.config.productionTip = false;
 
 // element-ui
 import 'element-ui/lib/theme-chalk/index.css';
-import ElementUi, {Message} from 'element-ui';
+import ElementUi, { Message } from 'element-ui';
 
 Vue.use(ElementUi);
 // axios
@@ -21,7 +21,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 axios.interceptors.request.use((config) => {
   // 对请求数据做统一处理
   config.paramsSerializer = function (params) {
-    return qs.stringify(params, {arrayFormat: 'repeat'})
+    return qs.stringify(params, { arrayFormat: 'repeat' });
   };
   return config;
 });
@@ -32,7 +32,7 @@ axios.interceptors.response.use((config) => {
   // } else {
   //     return Promise.resolve(config.data.message);
   // }
-  return Promise.resolve(config.data)
+  return config;
 }, () => {
   Message.error('请求错误');
   return Promise.reject(false);
@@ -48,6 +48,7 @@ Vue.prototype.$global = global;
 // 全局组件
 Vue.component('LoadingBox', () => import('./components/LoadingBox.vue'));
 Vue.component('SingleUpload', () => import('./components/SingleUpload.vue'));
+Vue.component('MulUpload', () => import('./components/MulUpload.vue'));
 // Vue.component('MulUpload', () => import('./components/MulUpload.vue'));
 // 全局filter
 Object.keys(fitllers).forEach((key) => {
@@ -56,5 +57,5 @@ Object.keys(fitllers).forEach((key) => {
 
 new Vue({
   router,
-  render: h => h(App),
+  render: h => h(App)
 }).$mount('#app');
