@@ -3,7 +3,12 @@
         <div class="content-box">
             <div class="goods-header">
                 <span class="title"><i class="el-icon-tickets"></i>数据列表</span>
-                <el-button size="small" type="primary" @click="handlerAddBrand">添加品牌</el-button>
+                <el-select size="small" v-model="searchData.categoryId" filterable clearable>
+                    <el-option v-for="item in propertySelect" :label="item.name" :value="item.id"
+                               :key="item.id"></el-option>
+                </el-select>
+                <el-button size="small" type="primary" @click="handlerSearch">搜索</el-button>
+                <el-button size="small" type="primary" @click="handlerAddBrand">添加属性</el-button>
             </div>
             <div class="wx-table">
                 <el-table :data="tableData" border>
@@ -42,14 +47,18 @@
                     <el-input class="dialog-input" v-model="formData.name"></el-input>
                 </el-form-item>
                 <el-form-item label="所属分类">
-                    <el-select v-model="formData.categoryId" multiple filterable clearable>
+                    <el-select v-model="formData.categoryId" filterable clearable>
                         <el-option v-for="item in propertySelect" :label="item.name" :value="item.id"
                                    :key="item.id"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="销售属性">
-                    <el-radio v-model="formData.sale" :label="1">是</el-radio>
                     <el-radio v-model="formData.sale" :label="0">不是</el-radio>
+                    <el-radio v-model="formData.sale" :label="1">是</el-radio>
+                </el-form-item>
+                <el-form-item label="属性">
+                    <el-radio v-model="formData.multi" :label="0">单选</el-radio>
+                    <el-radio v-model="formData.multi" :label="1">多选</el-radio>
                 </el-form-item>
                 <el-form-item label="排序">
                     <el-input class="dialog-input" v-model.number="formData.orderNum"></el-input>
@@ -84,21 +93,22 @@ export default class GoodsAttribute extends Vue {
     id: 0,
     name: '',
     categoryId: '',
-    sale: 0,
+    sale: 1,
+    multi: 1,
     orderNum: ''
   };
   searchData: Page = {
     page: 1,
     pageSize: 50,
-    name: ''
+    categoryId: ''
   };
 
   setData() {
     this.loading = true;
-    api.goodsAttribute('get').then((res: Common<any>) => {
+    api.goodsAttribute('get', this.searchData).then((res: Common<PageRes>) => {
       this.loading = false;
       if (res.code === this.$global.HTTPS) {
-        this.tableData = res.data;
+        this.tableData = res.data.list;
       }
     });
   }
@@ -156,7 +166,7 @@ export default class GoodsAttribute extends Vue {
   getProperty() {
     api.goodsSortManage('get').then((res: any) => {
       if (res.code === this.$global.HTTPS) {
-        this.propertySelect = res.data;
+        this.propertySelect = res.data.list;
       } else {
         this.$message.error(res.message);
       }
@@ -169,13 +179,19 @@ export default class GoodsAttribute extends Vue {
       name: '',
       categoryId: '',
       orderNum: '',
-      sale: 1
+      sale: 1,
+      multi: 1
     };
     this.visibleDialog = false;
   }
 
   handlerAddProperty(id: number) {
     this.$router.push(`/home/goods-property?id=${id}`);
+  }
+
+  handlerSearch() {
+    this.searchData.page = 1;
+    this.setData();
   }
 
   created() {

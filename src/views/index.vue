@@ -3,15 +3,16 @@
         <!--        <div id="echart" style="width: 100%;height: 400px"></div>-->
         <Swiper autoplay showIndicator height="415px">
             <Slide>
-                <img src="https://pic-1256941443.file.myqcloud.com/show/1556260740457228349.jpeg">
+                <img src="https://pic-1256941443.file.myqcloud.com/show/1557215703030800213.jpeg">
             </Slide>
             <Slide>
                 <img src="https://pic-1256941443.file.myqcloud.com/show/1556503821470977187.jpeg">
             </Slide>
             <Slide>
-                <img src="https://pic-1256941443.file.myqcloud.com/show/1556190433501897603.jpeg">
+                <img src="https://pic-1256941443.file.myqcloud.com/show/1557215703030800213.jpeg">
             </Slide>
         </Swiper>
+        <!--        <MyUpload v-model="url"></MyUpload>-->
     </div>
 </template>
 
@@ -41,6 +42,8 @@ import Slide from '@/components/Slide.vue';
   }
 })
 export default class Index extends Vue {
+
+  url: string = '';
 
   setEchart() {
     const myChart: ECharts = echarts.init(document.getElementById('echart'));

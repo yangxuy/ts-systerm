@@ -16,7 +16,7 @@ interface Goods {
   detail: string; // 描述
   orderNum: string | number; // 描述
   unit: string; // 描述
-  pictureList: string; // 商品图片
+  picture: string; // 商品图片
   status: number; // 商品状态
 }
 
@@ -30,7 +30,7 @@ interface goodsSearch {
 interface Sorts {
   id: number;
   name: string;
-  parentId: string | string;
+  parentId: string | number;
   orderNum: number | string;
 }
 
@@ -57,5 +57,50 @@ interface Attribute {
   name: string;
   categoryId: string | number;
   sale: number;
+  multi: number;
   orderNum: number | string;
+}
+
+interface valueItem {
+  id: number;
+  value: string;
+  orderNum: number;
+}
+
+interface AttributeAndValue {
+  id: number;
+  name: string;
+  categoryId: string | number;
+  sale: number;
+  multi: number;
+  orderNum: number | string;
+  values: valueItem[];
+  attrs: any;
+}
+
+interface skuList {
+  attributeNameId: number;
+  attributeValueId: number;
+}
+
+interface skuItem {
+  skuId: string;
+  skuList: skuList[];
+  status: number;
+  pic: string;
+  originPrice: number;
+  marketPrice: number;
+  stock: number;
+  stockAlarm: number;
+}
+
+interface GoodsSku {
+  id: number;
+  list: any[]
+}
+
+interface SkuRes {
+  id: number;
+  skuStockList: skuItem[];
+  spuList: skuList[]
 }

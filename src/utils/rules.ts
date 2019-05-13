@@ -25,7 +25,7 @@ export default {
                 return callback(new Error('不能为空'));
             }
 
-            if (!(/^[0-9]+.?[0-9]*$/.test(value))) {
+            if (!(/^[-+]?([0-9]*\.[0-9]+|[0-9]+)$/.test(value))) {
                 callback(new Error('必须是数字'));
             }
 

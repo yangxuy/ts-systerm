@@ -49,6 +49,7 @@ Vue.prototype.$global = global;
 Vue.component('LoadingBox', () => import('./components/LoadingBox.vue'));
 Vue.component('SingleUpload', () => import('./components/SingleUpload.vue'));
 Vue.component('MulUpload', () => import('./components/MulUpload.vue'));
+Vue.component('MyUpload', () => import('./components/MyUpload.vue'));
 // Vue.component('MulUpload', () => import('./components/MulUpload.vue'));
 // 全局filter
 Object.keys(fitllers).forEach((key) => {

@@ -68,7 +68,7 @@ export default class GoodsProperty extends Vue {
     }).then((res: any) => {
       this.loading = false;
       if (res.code === this.$global.HTTPS) {
-        this.tableData = res.data;
+        this.tableData = res.data.list;
       }
     });
   }

@@ -89,10 +89,10 @@ export default class GoodsBrand extends Vue {
 
   setData() {
     this.loading = true;
-    api.goodsBrandManage('get').then((res: Common<any>) => {
+    api.goodsBrandManage('get').then((res: Common<PageRes>) => {
       this.loading = false;
       if (res.code === 0) {
-        this.tableData = res.data;
+        this.tableData = res.data.list;
       } else {
         this.$message.error(res.message);
       }

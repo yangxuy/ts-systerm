@@ -4,19 +4,11 @@
             <div class="goods-header">
                 <span class="title"><i class="el-icon-tickets"></i>数据列表</span>
                 <div class="search-box">
-                    <el-input class="search-input" placeholder="名称搜索"
+                    <el-input size="small" class="search-input" placeholder="名称搜索"
                               v-model="searchData.name"></el-input>
-                    <!--                    <el-date-picker class="search-input" v-model="searchData.info.beginDate"-->
-                    <!--                                    placeholder="开始时间"-->
-                    <!--                                    value-format="yyyy-MM-dd HH:mm:ss" type="datetime">-->
-                    <!--                    </el-date-picker>-->
-                    <!--                    <el-date-picker class="search-input" v-model="searchData.info.endDate"-->
-                    <!--                                    placeholder="结束时间"-->
-                    <!--                                    value-format="yyyy-MM-dd HH:mm:ss" type="datetime">-->
-                    <!--                    </el-date-picker>-->
-                    <el-button type="primary" @click="handlerSearch">搜索</el-button>
+                    <el-button size="small" type="primary" @click="handlerSearch">搜索</el-button>
                 </div>
-                <el-button type="primary" @click="handlerAddGoods">添加商品</el-button>
+                <el-button type="primary" size="small" @click="handlerAddGoods">添加商品</el-button>
             </div>
             <div class="wx-table">
                 <el-table border :data="tableData">
@@ -24,7 +16,7 @@
                     <el-table-column align="center" label="商品名称" prop="name"></el-table-column>
                     <el-table-column align="center" label="商品类型" prop="typeId">
                         <template slot-scope="scope">
-                            {{scope.row.typeId|filterIdToName(sortType)}}
+                            {{scope.row.categoryId|filterIdToName(sortType)}}
                         </template>
                     </el-table-column>
                     <el-table-column align="center" label="所属品牌">
@@ -33,13 +25,17 @@
                         </template>
                     </el-table-column>
                     <el-table-column align="center" label="副标题" prop="subHead"></el-table-column>
-                    <el-table-column align="center" label="描述" prop="summary"></el-table-column>
-                    <el-table-column align="center" label="零售价" prop="price"></el-table-column>
-                    <el-table-column align="center" label="市场价" prop="marketPrice"></el-table-column>
+                    <el-table-column align="center" label="描述" prop="detail"></el-table-column>
+                    <el-table-column width="190px" align="center" label="设置">
+                        <template slot-scope="scope">
+                            <el-button size="small" type="primary" @click="handlerGoodsSku(scope.row)">商品属性设置
+                            </el-button>
+                        </template>
+                    </el-table-column>
                     <el-table-column align="center" min-width="110px" label="操作">
                         <template slot-scope="scope">
-                            <el-button type="primary" @click="handlerChangeItem(scope.row)">编辑</el-button>
-                            <el-button type="warn" @click="handlerFelItem(scope.row.id)">删除</el-button>
+                            <el-button size="small" type="primary" @click="handlerChangeItem(scope.row)">编辑</el-button>
+                            <el-button size="small" type="warn" @click="handlerFelItem(scope.row.id)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -57,7 +53,7 @@
         </div>
 
         <el-dialog title="商品" :visible.sync="visibleDialog" :close-on-click-modal="false"
-                   append-to-body width="700px" @close="restForm">
+                   append-to-body width="700px" @close="resetData">
             <el-form :model="formData" ref="goodsAdd" label-width="100px">
                 <el-form-item label="商品名称" prop="name" :rules="rules.NotEmpty">
                     <el-input v-model="formData.name"></el-input>
@@ -84,7 +80,10 @@
                     <el-input v-model.number="formData.orderNum"></el-input>
                 </el-form-item>
                 <el-form-item label="商品图片">
-                    <MulUpload v-model="formData.pictureList"></MulUpload>
+                    <MulUpload v-model="formData.picture"></MulUpload>
+                </el-form-item>
+                <el-form-item label="单位">
+                    <el-input v-model="formData.unit"></el-input>
                 </el-form-item>
                 <el-form-item label="商品状态">
                     <el-radio v-model="formData.status" :label="1">上线</el-radio>
@@ -94,24 +93,108 @@
                     <el-button type="primary" @click="handlerSubmitAddGoods">添加</el-button>
                 </el-form-item>
             </el-form>
-            <!--            <el-steps :active="active" finish-status="success">-->
-            <!--                <el-step title="步骤 1"></el-step>-->
-            <!--                <el-step title="步骤 2"></el-step>-->
-            <!--                <el-step title="步骤 3"></el-step>-->
-            <!--            </el-steps>-->
-            <!--            <StepOne v-if="active===0" v-model="formData"></StepOne>-->
-            <!--            <StepTwo v-if="active===1" v-model="formData"></StepTwo>-->
-            <!--            <el-button style="margin-top: 12px;" :disabled="active===0" @click="preStep">上一步</el-button>-->
-            <!--            <el-button style="margin-top: 12px;" :disabled="active===3" @click="nextStep">下一步</el-button>-->
-            <!--            <el-button style="margin-top: 12px;" @click="handlerSaveData">保存数据</el-button>-->
-            <!--            <el-button style="margin-top: 12px;" @click="handlerRecoverData">恢复数据</el-button>-->
+        </el-dialog>
+        <el-dialog :visible.sync="visibleAttr" :close-on-click-modal="false"
+                   append-to-body width="700px">
+            <el-form label-width="110px">
+                <el-form-item label="商品规格">
+                    <el-card>
+                        <template v-for="item in skuAttr">
+                            <div style="display: flex;flex-direction: column">
+                                <label>{{item.name}}:</label>
+                                <el-checkbox-group v-if="item.multi===1" v-model="item.attrs">
+                                    <el-checkbox v-for="v in item.values"
+                                                 :label="item.id+'-'+v.id" :key="v.id">
+                                        {{v.value}}
+                                    </el-checkbox>
+                                </el-checkbox-group>
+                                <el-radio-group v-if="item.multi===0" v-model="item.attrs">
+                                    <el-radio v-for="v in item.values" :label="v.id"
+                                              :key="v.id">{{v.value}}
+                                    </el-radio>
+                                </el-radio-group>
+                            </div>
+                        </template>
+                        <el-table border :data="skuParams.skuStockList" v-if="skuParams.skuStockList.length>0">
+                            <el-table-column min-width="88px" v-for="(item,index) in skuAttr"
+                                             :label="item.name" :key="item.id">
+                                <template slot-scope="scope">
+                                    {{skuMap.get(scope.row.skuList[index].attributeNameId+'-'+scope.row.skuList[index].attributeValueId).value}}
+                                </template>
+                            </el-table-column>
+                            <el-table-column min-width="88px" label="销售ID">
+                                <template slot-scope="scope">
+                                    <el-input size="small" class="table-input" v-model="scope.row.skuId"/>
+                                </template>
+                            </el-table-column>
+                            <el-table-column min-width="110px" label="原始价">
+                                <template slot-scope="scope">
+                                    <el-input size="small" class="table-input" v-model="scope.row.originPrice"/>
+                                </template>
+                            </el-table-column>
+                            <el-table-column min-width="110px" label="零售价">
+                                <template slot-scope="scope">
+                                    <el-input size="small" class="table-input" v-model="scope.row.marketPrice"/>
+                                </template>
+                            </el-table-column>
+                            <el-table-column min-width="88px" label="库存">
+                                <template slot-scope="scope">
+                                    <el-input size="small" class="table-input" v-model="scope.row.stock"/>
+                                </template>
+                            </el-table-column>
+                            <el-table-column min-width="100px" label="图片">
+                                <template slot-scope="scope">
+                                    <MyUpload v-model="scope.row.pic"></MyUpload>
+                                </template>
+                            </el-table-column>
+                            <el-table-column min-width="110px" label="库存预警值">
+                                <template slot-scope="scope">
+                                    <el-input size="small" class="table-input" v-model="scope.row.stockAlarm"/>
+                                </template>
+                            </el-table-column>
+                            <el-table-column min-width="100px" label="销售状态">
+                                <template slot-scope="scope">
+                                    <el-switch
+                                            v-model="scope.row.status"
+                                            active-color="#13ce66"
+                                            inactive-color="#ff4949"
+                                            :active-value="1"
+                                            :inactive-value="0">
+                                    </el-switch>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作">
+                                <template slot-scope="scope">
+                                    <el-button size="small" type="primary"
+                                               @click="handlerDelItem(scope.$index)">删除
+                                    </el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-card>
+                </el-form-item>
+                <el-form-item label="商品参数">
+                    <el-card>
+                        <template v-if="spuAttr.length>0" v-for="item in spuAttr">
+                            <div class="card-params">
+                                <label class="lable">{{item.name}}</label>
+                                <el-select v-model="item.attrs" :multiple="item.multi===1" filterable clearable>
+                                    <el-option v-for="v in item.values" :value="v.id" :key="v.id"
+                                               :label="v.value"></el-option>
+                                </el-select>
+                            </div>
+                        </template>
+                    </el-card>
+                </el-form-item>
+                <el-form-item label="">
+                    <el-button size="small" type="primary" @click="handlerSubmitSku">确定</el-button>
+                </el-form-item>
+            </el-form>
         </el-dialog>
     </LoadingBox>
 </template>
 
 <script lang="ts">
-// import StepOne from './process/StepOne.vue';
-// import StepTwo from './process/StepTwo.vue';
 import api from '@/api/api';
 import rules from '@/utils/rules';
 
@@ -121,10 +204,9 @@ interface Table extends Goods {
 }
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
+import { equalArray } from '@/utils/util';
 
-@Component({
-  // components: { StepOne, StepTwo }
-})
+@Component
 export default class AddGoods extends Vue {
   searchData: Page = {
     page: 1,
@@ -136,9 +218,18 @@ export default class AddGoods extends Vue {
   loading: boolean = false;
   rules: Rules = rules;
   visibleDialog: boolean = false;
+  visibleAttr: boolean = false;
   tableData: Table[] = [];
   sortType: Sorts[] = [];
   brandType: Brand[] = [];
+  skuAttr: AttributeAndValue[] = [];
+  skuMap: Map<string, any> = new Map(); // 全部属性map attributeID+'/'+attributeValueId
+  spuAttr: AttributeAndValue[] = [];
+  skuParams: SkuRes = {
+    id: 0,
+    skuStockList: [],
+    spuList: []
+  };
   formData: Goods = {
     id: 0,
     name: '',
@@ -149,178 +240,121 @@ export default class AddGoods extends Vue {
     orderNum: '',
     unit: '',
     status: 1,
-    pictureList: ''
+    picture: ''
   };
 
   // 动态计算 skuStockList
-  // @Watch('formData.property', { deep: true })
-  // handlerSetSkuStockList(v: Property[]) {
-  //   // 计算skuStockList--》新加+原来
-  //   let arrData: any = [];
-  //   let empty = v.map((item: Property) => {
-  //     return item.values instanceof Array ? item.values : [item.values];
-  //   });
-  //   const dfs = (depth: number, data: string[], list: any[]) => { // dfs 笛卡尔集变换
-  //     if (list.length <= depth) {
-  //       let data2 = data.toString();
-  //       const arr = this.formData.skuStockList.map(v => v.str);
-  //       if (arr.indexOf(data2) < 0) { // 添加不存在的
-  //         arrData.push(data2);
-  //       }
-  //       return;
-  //     }
-  //     const row = list[depth];
-  //     for (let i = 0; i < row.length; i++) {
-  //       data[depth] = row[i];
-  //       dfs(depth + 1, data, list);
-  //     }
-  //   };
-  //   dfs(0, [], empty);
-  //
-  //   for (let i = 0; i < arrData.length; i++) {
-  //     let sku: any = {};
-  //     for (let j = 0; j < arrData[i].split(',').length; j++) {
-  //       // sku={'颜色':'白色','尺寸':'X',price: '', stock: '', stockAlarm: '' }
-  //       sku[v[j].name] = arrData[i].split(',')[j];
-  //       sku = { ...sku, price: '', stock: '', stockAlarm: '', str: arrData[i] };
-  //     }
-  //     this.formData.skuStockList.push(sku);
-  //   }
-  //
-  //   // 计算属性图片---》新加+原来
-  //   let picArr: string[] = [];
-  //   v.map((item: Property) => {
-  //     if (item.needPic === 1) {
-  //       const arr = this.formData.propertyExt.map(v => v.name);
-  //       if (item.values instanceof Array) {
-  //         item.values.forEach((t) => {
-  //           if (arr.indexOf(t) < 0) {
-  //             picArr.push(t);
-  //           }
-  //         });
-  //       } else {
-  //         if (arr.indexOf(item.values) < 0) {
-  //           picArr.push(item.values);
-  //         }
-  //       }
-  //     }
-  //   });
-  //   const arr = picArr.map((v) => {
-  //     let obj: any = {};
-  //     obj['name'] = v;
-  //     obj[v] = '';
-  //     return obj;
-  //   });
-  //   if (arr.length) {
-  //     this.formData.propertyExt.push(...arr);
-  //   }
-  // }
+  @Watch('skuAttr', { deep: true })
+  handlerSetSkuStockList(v: any[]) {
+    const _this = this;
+    let empty = v.map((item: any) => {
+      return [].concat(item.attrs);
+    });
+    let dictionary: any = []; // 字典集合
+    let data: any = [];
+
+    function dfs(dep: number) {
+      if (empty.length <= dep) {
+        const test: any = [];
+        for (let j = 0; j < data.length; j++) {
+          test.push({
+            attributeNameId: Number(data[j].split('-')[0]),
+            attributeValueId: Number(data[j].split('-')[1])
+          });
+        }
+        dictionary.push([].concat(test));
+        return;
+      }
+      const n = empty[dep];
+      for (let i = 0; i < n.length; i++) {
+        data[dep] = n[i];
+        dfs(dep + 1);
+      }
+    }
+
+    if (empty[this.skuAttr.length - 1] && empty[this.skuAttr.length - 1].length) {
+      dfs(0);
+    }
+
+    const base = (test: skuList[]): boolean => {
+      let bool = false;
+      if (_this.skuParams.skuStockList.length) {
+        _this.skuParams.skuStockList.forEach(v => {
+          if (equalArray(v.skuList, test)) {
+            bool = true;
+          }
+        });
+      }
+      return bool;
+    };
+
+    for (let i = 0; i < dictionary.length; i++) {
+      let sku: any = {};
+      sku = {
+        originPrice: '',
+        stock: '',
+        stockAlarm: '',
+        skuId: '',
+        status: 1,
+        pic: '',
+        marketPrice: '',
+        skuList: dictionary[i]
+      };
+      if (!base(dictionary[i])) {
+        this.skuParams.skuStockList.push(sku);
+      }
+    }
+  }
+
+  // 动态计算 spu
+  @Watch('skuAttr', { deep: true })
+  handlerSkuAttr() {
+    this.spuAttr.forEach(v => {
+      if (v.attrs) {
+        if (v.attrs.length) {
+          for (let i = 0; i < v.attrs.length; i++) {
+            this.skuParams.spuList.push({
+              attributeNameId: Number(v.id),
+              attributeValueId: Number(v.attrs[i])
+            });
+          }
+        } else {
+          this.skuParams.spuList.push({
+            attributeNameId: Number(v.id),
+            attributeValueId: Number(v.attrs)
+          });
+        }
+      }
+    });
+  }
+
+  handlerSubmitSku() {
+    api.goodsSku('post', this.skuParams).then((res: Common<any>) => {
+      if (res.code === this.$global.HTTPS) {
+        this.$message.success(res.message);
+      }
+    });
+  }
 
   handlerAddGoods() {
     this.formData.id = 0;
     this.visibleDialog = true;
   }
 
-  //
-  // handlerChangeItem(item: Goods) {
-  //   this.formData = item;
-  //   this.visibleDialog = true;
-  // }
-  //
-  // handlerFelItem(id: number) {
-  //   api.goodsManage('delete', id).then((res: Common<any>) => {
-  //     if (res.code === this.$global.HTTPS) {
-  //       this.setData();
-  //     }
-  //   });
-  // }
-  //
-  // handlerSubmit() {
-  //   const goodsForm = this.$refs['goodsForm'] as any;
-  //   const base = () => {
-  //     this.$message.success('成功');
-  //     this.setData();
-  //     goodsForm.resetFields();
-  //     this.visibleDialog = false;
-  //   };
-  //   this.loading = true;
-  //   goodsForm.validate((valid: boolean) => {
-  //     if (valid) {
-  //       if (this.formData.id) {
-  //         api.goodsManage('put', this.formData).then((res: any) => {
-  //           this.loading = false;
-  //           if (res.code === this.$global.HTTPS) {
-  //             base();
-  //           }
-  //         });
-  //       } else {
-  //         api.goodsManage('post', this.formData).then((res: any) => {
-  //           this.loading = false;
-  //           if (res.code === this.$global.HTTPS) {
-  //             base();
-  //           }
-  //         });
-  //       }
-  //     } else {
-  //       this.$message.error('请按规则填写');
-  //     }
-  //   });
-  // }
-  //
-  restForm() {
-
-  }
-
-  //
   handleSizeChange(v: number) {
     this.searchData.pageSize = v;
     this.setData();
   }
 
-  //
   handleCurrentChange(v: number) {
     this.searchData.page = v;
     this.setData();
   }
 
-  //
   handlerSearch() {
     this.searchData.page = 1;
     this.setData();
   }
-
-  //
-  // setData() {
-  //   api.goodsGetManage('post', this.searchData).then((res: any) => {
-  //     if (res.code === this.$global.HTTPS) {
-  //       this.tableData = res.data.list;
-  //       this.total = res.data.total;
-  //     }
-  //   });
-  // }
-  //
-  // preStep() {
-  //   if (this.active > 0) {
-  //     this.active--;
-  //   }
-  // }
-  //
-  // nextStep() {
-  //   if (this.active < 3) {
-  //     this.active++;
-  //   }
-  // }
-  //
-  // // sava
-  // handlerSaveData() {
-  //   window.localStorage.setItem('goods', JSON.stringify(this.formData));
-  // }
-  //
-  // handlerRecoverData() {
-  //   console.log(window.localStorage.getItem('goods'));
-  //   this.formData = JSON.parse(window.localStorage.getItem('goods') as string);
-  //   // console.log(this.formData.propertyExt);
-  // }
 
   //添加商品
   handlerSubmitAddGoods() {
@@ -330,6 +364,7 @@ export default class AddGoods extends Vue {
         api.goodsManage('post', this.formData).then((res: Common<any>) => {
           if (res.code === this.$global.HTTPS) {
             this.$message.success(res.message);
+            this.resetData();
             this.setData();
           }
         });
@@ -337,8 +372,84 @@ export default class AddGoods extends Vue {
     });
   }
 
+  handlerFelItem(v: number) {
+    api.goodsManage('delete', v).then((res: Common<any>) => {
+      if (res.code === this.$global.HTTPS) {
+        this.$message.success(res.message);
+        this.setData();
+      } else {
+        this.$message.error(res.message);
+      }
+    });
+  }
+
+  handlerChangeItem(v: Table) {
+    this.formData = Object.assign({}, v);
+    this.visibleDialog = true;
+  }
+
+  // 添加sku
+  handlerGoodsSku(v: Goods) {
+    this.skuParams.id = v.id;
+    api.goodsAttribute('', v.categoryId).then((res: Common<any>) => {
+      // sku属性
+      this.skuAttr = res.data.filter((v: AttributeAndValue) => v.sale === 1).map((v: AttributeAndValue) => {
+        return {
+          ...v,
+          attrs: []
+        };
+      });
+      // 存储一个map()用于便利
+      this.skuAttr.forEach((v: AttributeAndValue) => {
+        v.values.forEach((t: valueItem) => {
+          this.skuMap.set(v.id + '-' + t.id, t);
+        });
+      });
+      // spu属性
+      this.spuAttr = res.data.filter((v: Attribute) => v.sale === 0).map((v: AttributeAndValue) => {
+        return {
+          ...v,
+          attrs: []
+        };
+      });
+      // 获取存储的sku--复原checkbox
+      api.goodsSku('get', { productId: v.id }).then((res: Common<SkuRes>) => {
+        if (res.code === this.$global.HTTPS) {
+          this.skuParams.skuStockList = res.data.skuStockList;
+          res.data.skuStockList.forEach((v) => {
+            v.skuList.forEach(t => {
+              this.skuAttr.forEach(x => {
+                if (t.attributeNameId === x.id) {
+                  x.attrs.push(t.attributeNameId + '-' + t.attributeValueId);
+                }
+              });
+            });
+          });
+          res.data.spuList.forEach(v => {
+            this.spuAttr.forEach(t => {
+              if (t.id === v.attributeNameId) {
+                if (t.multi) {
+                  t.attrs.push(v.attributeValueId);
+                } else {
+                  t.attrs = v.attributeValueId;
+                }
+              }
+            });
+          });
+        }
+      });
+      this.visibleAttr = true;
+    });
+  }
+
+  handlerDelItem(v: number) {
+    this.skuParams.skuStockList.splice(v, 1);
+  }
+
   setData() {
+    this.loading = true;
     api.goodsManage('get', this.searchData).then((res: Common<PageRes>) => {
+      this.loading = false;
       if (res.code === this.$global.HTTPS) {
         this.tableData = res.data.list;
         this.total = res.data.total;
@@ -346,10 +457,26 @@ export default class AddGoods extends Vue {
     });
   }
 
+  resetData() {
+    this.formData = {
+      id: 0,
+      name: '',
+      categoryId: '',
+      brandId: '',
+      subHead: '',
+      detail: '',
+      orderNum: '',
+      unit: '',
+      status: 1,
+      picture: ''
+    };
+    this.visibleDialog = false;
+  }
+
   created() {
     Promise.all([api.goodsSortManage('get'), api.goodsBrandManage('get')]).then((resArr: any[]) => {
-      this.sortType = resArr[0].data;
-      this.brandType = resArr[1].data;
+      this.sortType = resArr[0].data.list;
+      this.brandType = resArr[1].data.list;
     });
   }
 
@@ -359,10 +486,22 @@ export default class AddGoods extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     @import url('goods.scss');
 
     .dialog-input {
         width: 195px;
+    }
+
+
+    .card-params {
+        display: flex;
+        margin-bottom: 10px;
+
+        .lable {
+            display: inline-block;
+            width: 100px;
+        }
+
     }
 </style>

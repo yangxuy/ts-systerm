@@ -1,42 +1,44 @@
 <template>
     <LoadingBox :loading="false">
-        <div class="goods-header">
-            <span class="title"><i class="el-icon-tickets"></i>数据列表</span>
-            <el-button size="small" type="primary" @click="handlerAddSort">添加商品分类</el-button>
+        <div class="content-box">
+            <div class="goods-header">
+                <span class="title"><i class="el-icon-tickets"></i>数据列表</span>
+                <el-button size="small" type="primary" @click="handlerAddSort">添加商品分类</el-button>
+            </div>
+            <div class="wx-table">
+                <el-table border :data="tableData">
+                    <el-table-column label="编号" prop="id"></el-table-column>
+                    <el-table-column label="分类名称" prop="name"></el-table-column>
+                    <el-table-column label="排序" prop="orderNum"></el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="scope">
+                            <el-button size="small" type="primary" @click="handlerChangeItem(scope.row)">编辑</el-button>
+                            <el-button size="small" type="danger" @click="handlerDelItem(scope.row.id)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+            <el-dialog title="修改" :visible.sync="visibleDialog"
+                       append-to-body width="40%">
+                <el-form ref="ruleForm" label-width="88px" :model="formData" :rules="rules">
+                    <el-form-item label="分类名称" prop="name">
+                        <el-input v-model="formData.name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="父类" prop="parentId">
+                        <el-select v-model.number="formData.parentId">
+                            <el-option v-for="item in tableData" :key="item.id" :value="item.id"
+                                       :label="item.name"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="排序">
+                        <el-input v-model="formData.orderNum"></el-input>
+                    </el-form-item>
+                    <el-form-item label="">
+                        <el-button size="middle" type="primary" @click="handlerSubmit">确定</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-dialog>
         </div>
-        <div class="wx-table">
-            <el-table border :data="tableData">
-                <el-table-column label="编号" prop="id"></el-table-column>
-                <el-table-column label="分类名称" prop="name"></el-table-column>
-                <el-table-column label="排序" prop="orderNum"></el-table-column>
-                <el-table-column label="操作" align="center">
-                    <template slot-scope="scope">
-                        <el-button size="small" type="primary" @click="handlerChangeItem(scope.row)">编辑</el-button>
-                        <el-button size="small" type="danger" @click="handlerDelItem(scope.row.id)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </div>
-        <el-dialog title="修改" :visible.sync="visibleDialog"
-                   append-to-body width="40%">
-            <el-form ref="ruleForm" label-width="88px" :model="formData" :rules="rules">
-                <el-form-item label="分类名称" prop="name">
-                    <el-input v-model="formData.name"></el-input>
-                </el-form-item>
-                <el-form-item label="父类" prop="parentId">
-                    <el-select v-model.number="formData.parentId">
-                        <el-option v-for="item in tableData" :key="item.id" :value="item.id"
-                                   :label="item.name"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="排序">
-                    <el-input v-model="formData.orderNum"></el-input>
-                </el-form-item>
-                <el-form-item label="">
-                    <el-button size="middle" type="primary" @click="handlerSubmit">确定</el-button>
-                </el-form-item>
-            </el-form>
-        </el-dialog>
     </LoadingBox>
 </template>
 
@@ -63,7 +65,7 @@ export default class GoodsSort extends Vue {
   formData: Sorts = {
     id: 0,
     name: '',
-    parentId: '',
+    parentId: 0,
     orderNum: ''
   };
   rules: any = {
@@ -79,10 +81,10 @@ export default class GoodsSort extends Vue {
 
   setData() {
     this.loading = true;
-    api.goodsSortManage('get').then((res: Common<any>) => {
+    api.goodsSortManage('get').then((res: Common<PageRes>) => {
       if (res.code === this.$global.HTTPS) {
         this.loading = false;
-        this.tableData = res.data;
+        this.tableData = res.data.list;
       }
     }).catch((err) => {
       this.$message.error(err);

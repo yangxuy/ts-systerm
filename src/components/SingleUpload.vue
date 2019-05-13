@@ -17,8 +17,8 @@
 
 <script lang=ts>
 interface File {
-    name: string;
-    url: string;
+  name: string;
+  url: string;
 }
 
 import { Component, Vue, Prop } from 'vue-property-decorator';
@@ -26,35 +26,39 @@ import { imgSend } from '@/api/api';
 
 @Component
 export default class SingleUpload extends Vue {
-    @Prop() value: string;
-    dialogVisible: boolean = false;
+  @Prop() value: string;
+  dialogVisible: boolean = false;
 
-    get baseUrl() {
-        return process.env.VUE_APP_API_URL;
+  get baseUrl() {
+    return process.env.VUE_APP_API_URL;
+  }
+
+  dialogImageUrl() {
+    return this.value;
+  }
+
+  emitInput(val: any) {
+    this.$emit('input', val);
+  }
+
+  handlerSend(params: any) {
+    // this.$emit('input', 'http://pic37.nipic.com/20140113/8800276_184927469000_2.png')
+    const _file = params.file;
+    const isLt2M = _file.size / 1024 / 1024 < 2;
+    var formData = new FormData();
+    formData.append('file', _file);
+
+    if (!isLt2M) {
+      this.$message.error('请上传2M以下的.xlsx文件');
+      return false;
     }
 
-    emitInput(val: any) {
-        this.$emit('input', val);
-    }
-
-    handlerSend(params: any) {
-        // this.$emit('input', 'http://pic37.nipic.com/20140113/8800276_184927469000_2.png')
-        const _file = params.file;
-        const isLt2M = _file.size / 1024 / 1024 < 2;
-        var formData = new FormData();
-        formData.append('file', _file);
-
-        if (!isLt2M) {
-            this.$message.error('请上传2M以下的.xlsx文件');
-            return false;
-        }
-
-        imgSend('post', formData).then((res: Common<any>) => {
-            if (res.code === this.$global.HTTPS) {
-                this.emitInput(res.data);
-            }
-        });
-    }
+    imgSend('post', formData).then((res: Common<any>) => {
+      if (res.code === this.$global.HTTPS) {
+        this.emitInput(res.data);
+      }
+    });
+  }
 }
 </script>
 

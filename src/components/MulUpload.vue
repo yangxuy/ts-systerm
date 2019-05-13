@@ -70,10 +70,13 @@ export default class MultipleUpload extends Vue {
       this.$message.error('请上传2M以下的.xlsx文件');
       return false;
     }
+
     imgSend('post', formData).then((res: Common<any>) => {
       if (res.code === this.$global.HTTPS) {
         // this.value.push(res.data);
-        this.value += ',' + res.data;
+        const str = this.value ? this.value + ',' + res.data : this.value + '' + res.data;
+        // this.value += this.value ? ',' + res.data : res.data;
+        this.$emit('input', str);
       }
     });
   }

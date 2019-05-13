@@ -14,7 +14,7 @@ const ajax = (method: string, url: string, data?: any) => {  //暴露 request �
   } else if (method === 'delete') {
     return axios.delete(url + '/' + data).then((res: AxiosResponse<any>) => Promise.resolve(res.data));
   } else {
-    return axios.get(url).then((res: AxiosResponse<any>) => Promise.resolve(res.data));
+    return axios.get(url + '/' + data).then((res: AxiosResponse<any>) => Promise.resolve(res.data));
   }
 };
 
@@ -25,10 +25,11 @@ const goodsBrandManage = (methods: Methods, data?: any) => ajax(methods, '/api/b
 const goodsProperty = (methods: Methods, data?: any) => ajax(methods, '/api/property', data); // 商品属性
 const goodsAttributeValue = (methods: Methods, data?: any) => ajax(methods, '/api/attributeValue', data); // 商品属性值
 const goodsManage = (methods: Methods, data?: any) => ajax(methods, '/api/product', data); // 商品
+const goodsAttribute = (methods: Methods, data?: any) => ajax(methods, '/api/attribute', data);
+const goodsSku = (method:Methods,data: any) => ajax(method, '/api/product/sku', data); // 添加商品sku
 
 const goodsGetManage = (methods: Methods, data?: any) => ajax(methods, '/api/goods/list', data); // 商品获取2
 const goodsGetProperty = (methods: Methods = 'post', data?: any) => ajax(methods, '/api/property/list', data); // 商品属性获取
-const goodsAttribute = (methods: Methods, data?: any) => ajax(methods, '/api/attribute', data); // 商品参数
 const goodsGetAttribute = (methods: Methods = 'post', data?: any) => ajax(methods, '/api/attribute/list', data); // 商品参数
 
 export default {
@@ -40,5 +41,6 @@ export default {
   goodsGetProperty,
   goodsAttribute,
   goodsGetAttribute,
-  goodsAttributeValue
+  goodsAttributeValue,
+  goodsSku
 };
