@@ -204,7 +204,7 @@ interface Table extends Goods {
 }
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import { equalArray } from '@/utils/util';
+import { equalArray, type } from '@/utils/util';
 
 @Component
 export default class AddGoods extends Vue {
@@ -311,7 +311,7 @@ export default class AddGoods extends Vue {
   handlerSkuAttr() {
     this.spuAttr.forEach(v => {
       if (v.attrs) {
-        if (v.attrs.length) {
+        if (type(v.attrs) === 'Array') {
           for (let i = 0; i < v.attrs.length; i++) {
             this.skuParams.spuList.push({
               attributeNameId: Number(v.id),
@@ -332,6 +332,9 @@ export default class AddGoods extends Vue {
     api.goodsSku('post', this.skuParams).then((res: Common<any>) => {
       if (res.code === this.$global.HTTPS) {
         this.$message.success(res.message);
+        this.visibleAttr = false;
+      } else {
+        this.$message.error(res.message);
       }
     });
   }
@@ -455,6 +458,8 @@ export default class AddGoods extends Vue {
       if (res.code === this.$global.HTTPS) {
         this.tableData = res.data.list;
         this.total = res.data.total;
+      } else {
+        this.$message.error(res.message);
       }
     });
   }

@@ -97,6 +97,6 @@ export const equalObject = (obj1: any, obj2: any) => {
   return true;
 };
 
-const type = (data: any) => {
+export const type = (data: any) => {
   return Object.prototype.toString.call(data).slice(8, -1);
 };
