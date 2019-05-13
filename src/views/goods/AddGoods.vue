@@ -366,6 +366,8 @@ export default class AddGoods extends Vue {
             this.$message.success(res.message);
             this.resetData();
             this.setData();
+          } else {
+            this.$message.error(res.message);
           }
         });
       }
