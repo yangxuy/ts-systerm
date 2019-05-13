@@ -95,7 +95,7 @@
             </el-form>
         </el-dialog>
         <el-dialog :visible.sync="visibleAttr" :close-on-click-modal="false"
-                   append-to-body width="700px">
+                   append-to-body width="900px">
             <el-form label-width="110px">
                 <el-form-item label="商品规格">
                     <el-card>
