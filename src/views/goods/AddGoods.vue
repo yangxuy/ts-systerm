@@ -90,7 +90,7 @@
                     <el-radio v-model="formData.status" :label="0">下线</el-radio>
                 </el-form-item>
                 <el-form-item label="">
-                    <el-button type="primary" @click="handlerSubmitAddGoods">添加</el-button>
+                    <el-button type="primary" @click="handlerSubmitAddGoods">确定</el-button>
                 </el-form-item>
             </el-form>
         </el-dialog>
@@ -306,12 +306,11 @@ export default class AddGoods extends Vue {
     }
   }
 
-  // 动态计算 spu
-  @Watch('skuAttr', { deep: true })
-  handlerSkuAttr() {
+  handlerSubmitSku() {
+    this.skuParams.spuList = [];
     this.spuAttr.forEach(v => {
       if (v.attrs) {
-        if (type(v.attrs) === 'Array') {
+        if (v.attrs.length) {
           for (let i = 0; i < v.attrs.length; i++) {
             this.skuParams.spuList.push({
               attributeNameId: Number(v.id),
@@ -326,9 +325,6 @@ export default class AddGoods extends Vue {
         }
       }
     });
-  }
-
-  handlerSubmitSku() {
     api.goodsSku('post', this.skuParams).then((res: Common<any>) => {
       if (res.code === this.$global.HTTPS) {
         this.$message.success(res.message);
