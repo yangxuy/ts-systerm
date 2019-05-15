@@ -3,6 +3,7 @@
         <div class="content-box">
             <div class="goods-header">
                 <span class="title"><i class="el-icon-tickets"></i>数据列表</span>
+                <el-button size="small" type="primary" @click="handlerSearch">返回</el-button>
                 <el-button size="small" type="primary" @click="handlerAddSort">添加商品分类</el-button>
             </div>
             <div class="wx-table">
@@ -10,6 +11,12 @@
                     <el-table-column label="编号" prop="id"></el-table-column>
                     <el-table-column label="分类名称" prop="name"></el-table-column>
                     <el-table-column label="排序" prop="orderNum"></el-table-column>
+                    <el-table-column label="查看子类">
+                        <template slot-scope="scope">
+                            <el-button size="small" type="primary" @click="handlerCheckChild(scope.row)">查看子类
+                            </el-button>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
                             <el-button size="small" type="primary" @click="handlerChangeItem(scope.row)">编辑</el-button>
@@ -22,16 +29,16 @@
                        append-to-body width="40%">
                 <el-form ref="ruleForm" label-width="88px" :model="formData" :rules="rules">
                     <el-form-item label="分类名称" prop="name">
-                        <el-input v-model="formData.name"></el-input>
+                        <el-input class="small-dialog-input" v-model="formData.name"></el-input>
                     </el-form-item>
                     <el-form-item label="父类" prop="parentId">
                         <el-select v-model.number="formData.parentId">
-                            <el-option v-for="item in tableData" :key="item.id" :value="item.id"
+                            <el-option v-for="item in selectData" :key="item.id" :value="item.id"
                                        :label="item.name"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="排序">
-                        <el-input v-model="formData.orderNum"></el-input>
+                        <el-input class="small-dialog-input" v-model="formData.orderNum"></el-input>
                     </el-form-item>
                     <el-form-item label="">
                         <el-button size="middle" type="primary" @click="handlerSubmit">确定</el-button>
@@ -51,21 +58,16 @@ interface table extends Sorts {
   createTime: string
 }
 
-class Base {
-  constructor() {
-
-  }
-}
-
 @Component
 export default class GoodsSort extends Vue {
   tableData: table[] = [];
   loading: boolean = false;
+  queryId: number = -1;
   visibleDialog: boolean = false;
   formData: Sorts = {
     id: 0,
     name: '',
-    parentId: 0,
+    parentId: -1,
     orderNum: ''
   };
   rules: any = {
@@ -79,9 +81,25 @@ export default class GoodsSort extends Vue {
     ]
   };
 
+  get selectData() {
+    const arr = this.tableData.map(v => {
+      return {
+        id: v.id,
+        name: v.name
+      };
+    });
+    arr.unshift({ id: -1, name: '无上级分类' });
+    return arr;
+  }
+
+  handlerSearch() {
+    this.queryId = -1;
+    this.setData();
+  }
+
   setData() {
     this.loading = true;
-    api.goodsSortManage('get').then((res: Common<PageRes>) => {
+    api.goodsSortManage('get', { parentId: this.queryId }).then((res: Common<PageRes>) => {
       if (res.code === this.$global.HTTPS) {
         this.loading = false;
         this.tableData = res.data.list;
@@ -92,7 +110,7 @@ export default class GoodsSort extends Vue {
   }
 
   handlerAddSort() {
-    this.formData.id = 0;
+    this.formData.id = -1;
     this.visibleDialog = true;
   }
 
@@ -130,6 +148,11 @@ export default class GoodsSort extends Vue {
         return false;
       }
     });
+  }
+
+  handlerCheckChild(row: Sorts) {
+    this.queryId = row.id;
+    this.setData();
   }
 
   mounted() {
